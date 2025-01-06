@@ -51,7 +51,7 @@ const ShapeComponent = React.forwardRef<HTMLDivElement, {
   onDragStop: (e: DraggableEvent, data: DraggableData) => void;
   onDoubleClick: () => void;
 }>(({ shape, onDragStop, onDoubleClick }, ref) => {
- const nodeRef = useRef<HTMLDivElement>(null);
+const nodeRef = useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HTMLDivElement>;
  
  let content;
  switch (shape.type) {
