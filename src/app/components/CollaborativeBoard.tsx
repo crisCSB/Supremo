@@ -1,22 +1,12 @@
-
 'use client';
-
-
-
-
-
-
-
 
 import React, { useEffect, useState, useRef } from 'react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import Draggable from 'react-draggable';
+import Draggable, { DraggableEvent, DraggableData } from 'react-draggable';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { Share2, Square, Circle, StickyNote, Type } from 'lucide-react';
-import type { DraggableEvent, DraggableData } from 'react-draggable';
-
 
 interface Shape {
  id: string;
@@ -45,13 +35,12 @@ const useStore = create<BoardStore>((set) => ({
    })),
 }));
 
-// Update interface
 const ShapeComponent = React.forwardRef<HTMLDivElement, {
-  shape: Shape;
-  onDragStop: (e: DraggableEvent, data: DraggableData) => void;
-  onDoubleClick: () => void;
-}>(({ shape, onDragStop, onDoubleClick }, ref) => {
-const nodeRef = useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HTMLDivElement>;
+ shape: Shape;
+ onDragStop: (e: DraggableEvent, data: DraggableData) => void;
+ onDoubleClick: () => void;
+}>(({ shape, onDragStop, onDoubleClick }, _ref) => {
+ const nodeRef = useRef<HTMLDivElement>(document.createElement('div'));
  
  let content;
  switch (shape.type) {
@@ -97,10 +86,10 @@ const nodeRef = useRef<HTMLDivElement | null>(null) as React.MutableRefObject<HT
 ShapeComponent.displayName = 'ShapeComponent';
 
 export default function CollaborativeBoard() {
- const { shapes, setShapes, addShape, updateShape } = useStore();
+ const { shapes, setShapes } = useStore();
  const [doc] = useState(() => new Y.Doc());
  const [copied, setCopied] = useState(false);
- const shapeRefs = useRef<{ [key: string]: React.RefObject<HTMLDivElement> }>({});
+ const shapeRefs = useRef<{ [key: string]: React.MutableRefObject<HTMLDivElement> }>({});
  const [isConnected, setIsConnected] = useState(false);
 
  useEffect(() => {
@@ -141,10 +130,10 @@ export default function CollaborativeBoard() {
    
    const yShapes = doc.getArray('shapes');
    yShapes.push([newShape]);
-   shapeRefs.current[newShape.id] = React.createRef();
+   shapeRefs.current[newShape.id] = { current: document.createElement('div') } as React.MutableRefObject<HTMLDivElement>;
  };
 
- const handleDrag =  (id: string, e: DraggableEvent, data: DraggableData) => {
+ const handleDrag = (id: string, e: DraggableEvent, data: DraggableData) => {
    const yShapes = doc.getArray('shapes');
    const index = shapes.findIndex((shape) => shape.id === id);
    
@@ -249,20 +238,15 @@ export default function CollaborativeBoard() {
      </button>
 
      <div className="w-full h-full">
-       {shapes.map((shape) => {
-         if (!shapeRefs.current[shape.id]) {
-           shapeRefs.current[shape.id] = React.createRef();
-         }
-         return (
-           <ShapeComponent
-             key={shape.id}
-             ref={shapeRefs.current[shape.id]}
-             shape={shape}
-             onDragStop={(e, data) => handleDrag(shape.id, e, data)}
-             onDoubleClick={() => handleDoubleClick(shape.id)}
-           />
-         );
-       })}
+       {shapes.map((shape) => (
+         <ShapeComponent
+           key={shape.id}
+           ref={shapeRefs.current[shape.id]}
+           shape={shape}
+           onDragStop={(e, data) => handleDrag(shape.id, e, data)}
+           onDoubleClick={() => handleDoubleClick(shape.id)}
+         />
+       ))}
      </div>
    </div>
  );
