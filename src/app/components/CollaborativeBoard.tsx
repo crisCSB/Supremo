@@ -93,11 +93,11 @@ export default function CollaborativeBoard() {
  const [isConnected, setIsConnected] = useState(false);
 
  useEffect(() => {
-   const wsHost = window.location.hostname;
    const wsProvider = new WebsocketProvider(
-     `ws://${wsHost}:1234`,
+     `wss://${process.env.NEXT_PUBLIC_WS_SERVER}`,
      'collab-board',
-     doc
+     doc,
+     { connect: true }
    );
    
    wsProvider.on('status', (event: { status: string }) => {
@@ -167,16 +167,14 @@ export default function CollaborativeBoard() {
 
  const shareBoard = async () => {
    try {
-     const wsHost = window.location.hostname;
-     const url = `http://${wsHost}:3000`;
+     const url = `https://${process.env.NEXT_PUBLIC_WS_SERVER}`;
      await navigator.clipboard.writeText(url);
      setCopied(true);
      setTimeout(() => setCopied(false), 2000);
    } catch (err) {
      console.error('Failed to copy:', err);
      const textArea = document.createElement('textarea');
-     const wsHost = window.location.hostname;
-     textArea.value = `http://${wsHost}:3000`;
+     textArea.value = `https://${process.env.NEXT_PUBLIC_WS_SERVER}`;
      document.body.appendChild(textArea);
      textArea.select();
      try {
