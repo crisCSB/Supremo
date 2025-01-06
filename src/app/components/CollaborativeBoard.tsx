@@ -137,7 +137,7 @@ export default function CollaborativeBoard() {
    shapeRefs.current[newShape.id] = React.createRef();
  };
 
- const handleDrag = (id: string, _: React.DragEvent<HTMLDivElement>, data: { x: number; y: number }) => {
+ const handleDrag =  (id: string, e: DraggableEvent, data: DraggableData) => {
    const yShapes = doc.getArray('shapes');
    const index = shapes.findIndex((shape) => shape.id === id);
    
