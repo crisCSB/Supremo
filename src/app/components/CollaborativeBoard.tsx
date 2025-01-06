@@ -8,6 +8,8 @@ import Draggable from 'react-draggable';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import { Share2, Square, Circle, StickyNote, Type } from 'lucide-react';
+import type { DraggableEvent, DraggableData } from 'react-draggable';
+
 
 interface Shape {
  id: string;
@@ -36,10 +38,11 @@ const useStore = create<BoardStore>((set) => ({
    })),
 }));
 
+// Update interface
 const ShapeComponent = React.forwardRef<HTMLDivElement, {
- shape: Shape;
- onDragStop: (e: React.DragEvent<HTMLDivElement>, data: { x: number; y: number }) => void;
- onDoubleClick: () => void;
+  shape: Shape;
+  onDragStop: (e: DraggableEvent, data: DraggableData) => void;
+  onDoubleClick: () => void;
 }>(({ shape, onDragStop, onDoubleClick }, ref) => {
  const nodeRef = useRef<HTMLDivElement>(null);
  
